@@ -203,6 +203,7 @@ public final class Fraction extends Number implements Comparable<Fraction> {
         }
         return new Fraction(numerator, denominator);
     }
+    
 
     /**
      * Creates a {@link Fraction} instance with the 3 parts of a fraction X Y/Z.
@@ -345,57 +346,141 @@ public final class Fraction extends Number implements Comparable<Fraction> {
      * @param v  a non-zero number
      * @return the greatest common divisor, never zero
      */
+
+    public static boolean[] branchCoverage = new boolean[100];
+
+
     private static int greatestCommonDivisor(int u, int v) {
         // From Commons Math:
+        // Decision 1
+        // B1: condition true enter block 
+        // B2: contition false skip
         if (u == 0 || v == 0) {
+            branchCoverage[1] = true; // B1
+            // Decision 2 
+            // B3: contition true overflow exception
+            // B4: Condition false return abs u + abs v
             if (u == Integer.MIN_VALUE || v == Integer.MIN_VALUE) {
+                branchCoverage[3] = true; // B3
                 throw new ArithmeticException("overflow: gcd is 2^31");
+            } else {
+                branchCoverage[4] = true; // B4
             }
             return Math.abs(u) + Math.abs(v);
+        } else {
+            branchCoverage[2] = true; // B2
         }
+        //Decision 3
+        // B5: condition true return 1
+        // B6: Condition false continue
         // if either operand is abs 1, return 1:
         if (Math.abs(u) == 1 || Math.abs(v) == 1) {
+            branchCoverage[5] = true; // B5 hit
             return 1;
-        }
+        } else {
+        branchCoverage[6] = true; // B6 hit
+    }
         // keep u and v negative, as negative integers range down to
         // -2^31, while positive numbers can only be as large as 2^31-1
         // (i.e. we can't necessarily negate a negative number without
         // overflow)
+
+        // Decision 4
+        // B7: condition true turn u negative
+        // B8: condition false then its already working
         if (u > 0) {
+            branchCoverage[7] = true; // B7 hit
             u = -u;
-        } // make u negative
+        } else {
+        branchCoverage[8] = true; // B8 hit 
+    } // make u negative
+
+        // Decision 5
+        // B9: same as dec 4
+        // B 10:
         if (v > 0) {
+            branchCoverage[9] = true; // B9 
             v = -v;
-        } // make v negative
+         // make v negative
+        } else {
+        branchCoverage[10] = true; // B10 
+    }
         // B1. [Find power of 2]
         int k = 0;
+
+        // Decision 6 
+        // B11: has loop ever entered
+        // B12: loop not entered false
         while ((u & 1) == 0 && (v & 1) == 0 && k < 31) { // while u and v are both even...
+            branchCoverage[11] = true; // B11 
             u /= 2;
             v /= 2;
             k++; // cast out twos.
         }
+        branchCoverage[12] = true; // B12
+
+        // Decision 7
+        // B13: condition true thow overflow exception
+        // B14: condition false continue
         if (k == 31) {
+            branchCoverage[13] = true; // B13 
             throw new ArithmeticException("overflow: gcd is 2^31");
-        }
+        } else {
+        branchCoverage[14] = true; // B14
+    }
         // B2. Initialize: u and v have been divided by 2^k and at least
         // one is odd.
+
+        // Decision 8
+        // B15: condition true (u is odd)
+        // B16: condition false (u is even)
         int t = (u & 1) == 1 ? v : -(u / 2)/* B3 */;
+        if ((u & 1) == 1) { 
+        branchCoverage[15] = true; // B15
+        } else {
+        branchCoverage[16] = true; // B16
+    }
+
         // t negative: u was odd, v may be even (t replaces v)
         // t positive: u was even, v is odd (t replaces u)
         do {
+
+        // Decision 9
+        // B17: condition true enter while
+        // B18: condition false skip while
+
             /* assert u<0 && v<0; */
             // B4/B3: cast out twos from t.
             while ((t & 1) == 0) { // while t is even.
+                branchCoverage[17] = true; // B17
                 t /= 2; // cast out twos
             }
+            if (!branchCoverage[17]) {
+            branchCoverage[18] = true; // B18
+        }
             // B5 [reset max(u,v)]
+
+        // Decision 10
+        // B19: condition true u = -t
+        // B20: condition false v = t
             if (t > 0) {
+                branchCoverage[19] = true; // B19
                 u = -t;
             } else {
+                branchCoverage[20] = true; // B20
                 v = t;
             }
             // B6/B3. at this point both u and v should be odd.
             t = (v - u) / 2;
+
+        // Decision 11
+        // B21: condition true loop again
+        // B22: condition false end loop
+            if (t != 0) {
+                branchCoverage[21] = true; // B21
+            } else {
+                branchCoverage[22] = true; // B22
+            }
             // |u| larger: t positive (replace u)
             // |v| larger: t negative (replace v)
         } while (t != 0);

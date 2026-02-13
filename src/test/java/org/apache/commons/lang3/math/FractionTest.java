@@ -26,15 +26,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
+// https://www.geeksforgeeks.org/software-testing/junit-5-afterall-annotation-with-example/
 
 /**
  * Test cases for the {@link Fraction} class
  */
 class FractionTest extends AbstractLangTest {
-
+    /**
+     * DIY Coverage Logic
+     * This method runs after all tests have finished via @AfterAll to print 
+     * the state of the manual branch. It iterates through 
+     * the branchCoverage boolean array to identify which logic paths (B1-B22) 
+     * were exercised (HIT) and which remain untested (MISS) by the current suite.
+     */
+    @AfterAll 
+    public static void printCoverageReport() {
+        System.out.println("\n=== DIY BRANCH COVERAGE REPORT ===");
+        for (int i = 1; i <= 22; i++) {
+            String status = Fraction.branchCoverage[i] ? " [ HIT ] " : " [ MISS ]";
+            System.out.printf("Branch B%2d: %s%n", i, status);
+        }
+    }
     private static final int SKIP = 500; // 53
 
     @Test
