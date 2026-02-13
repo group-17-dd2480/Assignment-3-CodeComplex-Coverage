@@ -25,16 +25,50 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.commons.lang3.AbstractLangTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import org.junit.jupiter.api.AfterAll; // For JUnit 5
+// import org.junit.AfterClass;      // Use this instead if using JUnit 4
+import java.lang.reflect.Method;
+
 /**
  * Test cases for the {@link Fraction} class
  */
 class FractionTest extends AbstractLangTest {
-
+        @AfterAll
+    public static void printCoverageReport() {
+        System.out.println(" Branch Covrege: greatestCommonDivisor ===");
+        
+        // Access the array from the production class
+        for (int i = 1; i <= 22; i++) {
+            String status = Fraction.branchCoverage[i] ? " [ HIT ] " : " [ MISS ]";
+            System.out.printf("Branch B%2d: %s%n", i, status);
+        }
+    }
+    /**
+     * A helper method that uses "Reflection" to test the GCD logic.
+     * This allows us to test the corners of the code that are 
+     * usually hidden, helping us fix the "MISS" branches we found.
+     */
+    private int callPrivateGcd(int u, int v) throws Exception {
+        // 1. Find the hidden method in the Fraction class
+        Method method = Fraction.class.getDeclaredMethod("greatestCommonDivisor", int.class, int.class);
+        // 2. Unlock it so we can run it
+        method.setAccessible(true);
+        try {
+            // 3. Run the method with our test numbers
+            return (int) method.invoke(null, u, v);
+        } catch (InvocationTargetException e) {
+            // 4. If the math fails like an overflow, show us the real error
+            throw (Exception) e.getCause();
+        }
+    }
+    
     private static final int SKIP = 500; // 53
 
     @Test
@@ -1129,5 +1163,22 @@ class FractionTest extends AbstractLangTest {
 
         f = Fraction.getFraction(-1, 1, Integer.MAX_VALUE);
         assertEquals("-2147483648/2147483647", f.toString());
+    }
+    @Test
+    void testGcd_Zeros() throws Exception {
+        // This checks what happens when you use 0. 
+        // 1. GCD of 0 and 5 should be 5 (B1 and B4)
+        assertEquals(5, callPrivateGcd(0, 5));
+        
+        // 2. GCD of 0 and MIN_VALUE is too big for an int, so it should crash 
+        // on purpose with an Error (B1 and B3)
+        assertThrows(ArithmeticException.class, () -> callPrivateGcd(0, Integer.MIN_VALUE));
+    }
+
+    @Test
+    void testGcd_NegativesAndOdds() throws Exception {
+        // This checks negative numbers and odd numbers.
+        // If we use 1 and -1, it skips the even numbers loop (B10 and B12)
+        assertEquals(1, callPrivateGcd(1, -1));
     }
 }
