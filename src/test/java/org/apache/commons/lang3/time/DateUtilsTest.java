@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -47,6 +48,7 @@ import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +67,8 @@ import org.junitpioneer.jupiter.WritesDefaultLocale;
 @ReadsDefaultLocale
 @WritesDefaultLocale
 class DateUtilsTest extends AbstractLangTest {
+
+
 
     private static final TimeZone TIME_ZONE_NY = TimeZones.getTimeZone("America/New_York");
     private static final TimeZone TIME_ZONE_DEFAULT = TimeZone.getDefault();
@@ -129,6 +133,10 @@ class DateUtilsTest extends AbstractLangTest {
 
         assertWeekIterator(it, calStart, calEnd);
     }
+    @BeforeAll
+        public static void resetCoverage() {
+        Arrays.fill(DateUtils.coverage, false);
+        }
 
     @BeforeAll
     public static void classSetup() {
@@ -945,6 +953,22 @@ class DateUtilsTest extends AbstractLangTest {
                 dateParser.parse("October 29, 2001"),
                 dateParser.parse("December 2, 2001"));
     }
+    @AfterAll
+        public static void printCoverage() {
+        int totalBranches = 30; // set this to your actual count
+        int covered = 0;
+
+        for (int i = 0; i < totalBranches; i++) {
+                if (DateUtils.coverage[i]) {
+                System.out.println("Branch " + i + " covered");
+                covered++;
+                }
+        }
+
+        System.out.println("Total covered: " + covered);
+        System.out.println("Coverage %: " + (covered * 100.0 / totalBranches));
+        }
+
 
     @Test
     void testParse_EmptyParsers() {

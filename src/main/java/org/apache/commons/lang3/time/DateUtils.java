@@ -57,6 +57,8 @@ import org.apache.commons.lang3.LocaleUtils;
  * @since 2.0
  */
 public class DateUtils {
+    
+public static boolean[] coverage = new boolean[100];
 
     /**
      * Date iterator.
@@ -978,7 +980,9 @@ public class DateUtils {
         int endCutoff = Calendar.SATURDAY;
         switch (rangeStyle) {
             case RANGE_MONTH_SUNDAY:
+                coverage[1] = true;
             case RANGE_MONTH_MONDAY:
+                coverage[2] = true;
                 //Set start to the first of the month
                 start = truncate(calendar, Calendar.MONTH);
                 //Set end to the last of the month
@@ -987,58 +991,105 @@ public class DateUtils {
                 end.add(Calendar.DATE, -1);
                 //Loop start back to the previous sunday or monday
                 if (rangeStyle == RANGE_MONTH_MONDAY) {
+                    coverage[3] = true;
                     startCutoff = Calendar.MONDAY;
                     endCutoff = Calendar.SUNDAY;
                 }
+                else{
+                    coverage[4] = true;
+                }
                 break;
             case RANGE_WEEK_SUNDAY:
+                    coverage[5] = true;
             case RANGE_WEEK_MONDAY:
+                    coverage[6] = true;
             case RANGE_WEEK_RELATIVE:
+                    coverage[7] = true;
             case RANGE_WEEK_CENTER:
+                    coverage[8] = true;
                 //Set start and end to the current date
                 start = truncate(calendar, Calendar.DATE);
                 end = truncate(calendar, Calendar.DATE);
                 switch (rangeStyle) {
                     case RANGE_WEEK_SUNDAY:
+                        coverage[9] = true;
                         //already set by default
                         break;
                     case RANGE_WEEK_MONDAY:
+                        coverage[10] = true;
                         startCutoff = Calendar.MONDAY;
                         endCutoff = Calendar.SUNDAY;
                         break;
                     case RANGE_WEEK_RELATIVE:
+                        coverage[11] = true;
                         startCutoff = calendar.get(Calendar.DAY_OF_WEEK);
                         endCutoff = startCutoff - 1;
                         break;
                     case RANGE_WEEK_CENTER:
+                        coverage[12] = true;
                         startCutoff = calendar.get(Calendar.DAY_OF_WEEK) - 3;
                         endCutoff = calendar.get(Calendar.DAY_OF_WEEK) + 3;
                         break;
                     default:
+                        coverage[13] = true;
                         break;
                 }
                 break;
             default:
+                    coverage[14] = true;
                 throw new IllegalArgumentException("The range style " + rangeStyle + " is not valid.");
         }
         if (startCutoff < Calendar.SUNDAY) {
+            coverage[15] = true;
             startCutoff += 7;
         }
+        else {
+            coverage[16] = true;
+        }
         if (startCutoff > Calendar.SATURDAY) {
+            coverage[17] = true;
             startCutoff -= 7;
         }
+        else{
+            coverage[18] = true;
+        }
         if (endCutoff < Calendar.SUNDAY) {
+            coverage[19] = true;
             endCutoff += 7;
         }
+        else {
+            coverage[20] = true;
+        }
         if (endCutoff > Calendar.SATURDAY) {
+            coverage[21] = true;
             endCutoff -= 7;
         }
+        else{
+            coverage[22] = true;
+        }
+        boolean enteredStartLoop = false;
         while (start.get(Calendar.DAY_OF_WEEK) != startCutoff) {
+            coverage[23] = true;
+            enteredStartLoop = true;
             start.add(Calendar.DATE, -1);
         }
+        if (!enteredStartLoop) {
+            coverage[24] = true;
+        }
+        boolean enteredEndLoop = false;
         while (end.get(Calendar.DAY_OF_WEEK) != endCutoff) {
+            coverage[25] = true;
+            enteredEndLoop = true;
             end.add(Calendar.DATE, 1);
         }
+        if (!enteredEndLoop) {
+            coverage[26] = true;
+        }
+        
+        for (int i = 0; i < coverage.length; i++) {
+            if (coverage[i]) {
+                System.out.println("Branch " + i + " covered");
+            }}
         return new DateIterator(start, end);
     }
 
