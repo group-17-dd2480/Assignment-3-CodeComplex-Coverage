@@ -112,11 +112,6 @@ Interpretation:
 
 ### 3.2 Manual Cyclomatic Complexity Count
 
- Decision points counted:
-- if statements
-- while loops
-- do-while loop
-- ternary operator
 
 Result:
 - Decision points = 11
@@ -309,7 +304,7 @@ private static int greatestCommonDivisor(int u, int v) {
 
     return -u * (1 << k);
 }
-´´´
+```
 
 ```java
 @AfterAll
@@ -330,7 +325,7 @@ public static void printCoverageReport() {
 ## Printing after added tests 
 
 ```text
-Branch Covrege: greatestCommonDivisor === Branch B 1: [ HIT ] Branch B 2: [ HIT ] Branch B 3: [ HIT ] Branch B 4: [ HIT ] Branch B 5: [ HIT ] Branch B 6: [ HIT ] Branch B 7: [ HIT ] Branch B 8: [ HIT ] Branch B 9: [ HIT ] Branch B10: [ MISS ] Branch B11: [ HIT ] Branch B12: [ HIT ] Branch B13: [ MISS ] Branch B14: [ HIT ] Branch B15: [ HIT ] Branch B16: [ HIT ] Branch B17: [ HIT ] Branch B18: [ HIT ] Branch B19: [ HIT ] Branch B20: [ HIT ] Branch B21: [ HIT ] Branch B22: [ HIT ]
+Branch Covrege: greatestCommonDivisor === Branch B 1: [ HIT ] Branch B 2: [ HIT ] Branch B 3: [ HIT ] Branch B 4: [ HIT ] Branch B 5: [ HIT ] Branch B 6: [ HIT ] Branch B 7: [ HIT ] Branch B 8: [ HIT ] Branch B 9: [ HIT ] Branch B10: [ HIT ] Branch B11: [ HIT ] Branch B12: [ HIT ] Branch B13: [ MISS ] Branch B14: [ HIT ] Branch B15: [ HIT ] Branch B16: [ HIT ] Branch B17: [ HIT ] Branch B18: [ HIT ] Branch B19: [ HIT ] Branch B20: [ HIT ] Branch B21: [ HIT ] Branch B22: [ HIT ]
 ```
 
 
@@ -364,19 +359,17 @@ void testGcd_Zeros() throws Exception {
     assertThrows(ArithmeticException.class,
         () -> callPrivateGcd(0, Integer.MIN_VALUE));
 }
-```
-### Test 2 Negative and odd inputs
+´´´
+### Test 2 
 
 ```java
-@Test
-void testGcd_NegativesAndOdds() throws Exception {
+    @Test
+    void testGcd_VAlreadyNegative() throws Exception {
+        // Avoids zero-check and abs==1 check.
+        // v is already negative so v>0 is false -> hits B10.
+        assertEquals(1, callPrivateGcd(3, -5));
+    }
 
-    // Both inputs are odd and one is negative
-    // Expected behavior: return 1
-    // Skips the even-reduction loop and tests sign normalization
-    // Targets branches: B5, B10, and B12
-    assertEquals(1, callPrivateGcd(1, -1));
-}
 ```
 
 ## Refactoring Plan
@@ -384,6 +377,5 @@ void testGcd_NegativesAndOdds() throws Exception {
 The refactoring would separate responsibilities into dedicated helper functions. The zero-input and overflow handling logic could be extracted into a `handleZeroInputs` method to isolate early-exit cases. The fast-path check for `abs(u) == 1 || abs(v) == 1` could be moved into an `isAbsOne` helper to clarify shortcut behavior. The sign normalization of inputs could be handled by a `normalizeNegative` method to remove duplicated conditional logic. The extraction of common powers of two (the loop that computes `k`) could be placed in an `extractCommonFactorsOfTwo` method, encapsulating the bitwise reduction and overflow check. Finally, the core of Stein’s binary GCD algorithm could be isolated in a `binaryGcdCoreLoop` method to clearly separate the mathematical algorithm from input preprocessing.
 
 
-## Analysis of Remaining Uncovered Branches (B10 and B13)
-
-Even after adding new tests, branches B10 and B13 remain uncovered due to the structure of the algorithm. Branch B10 (the `else` case of `if (v > 0)`) is rarely reached because inputs where `v` is zero or negative often trigger earlier returns, such as the zero-input check or the `abs(v) == 1`, before execution reaches the normalization step. Branch B13 (`k == 31`) represents an overflow condition that would require both inputs to be divisible by \(2^{31}\), which in practice means both must be `Integer.MIN_VALUE`. However, earlier safety checks and the control flow of the algorithm make this state nearly impossible to reach during normal execution. Therefore, these branches can be considered logically unreachable, and achieving 100% branch coverage for this method is unrealistic without modifying the implementation.
+## Analysis of Remaining Uncovered Branch B13
+B13 corresponds to the overflow guard k == 31. Reaching it requires both inputs to be divisible by 2^31 (i.e., both must be Integer.MIN_VALUE). This case is extremely rare and not realistically reachable through normal inputs without effectively constructing the exact overflow scenario, so branch coverage cannot reasonably reach 100% without modifying the implementation.”
