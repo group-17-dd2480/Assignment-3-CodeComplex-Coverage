@@ -7120,6 +7120,14 @@ public class ArrayUtils {
         }
     }
 
+    public static boolean shiftHelper1(final boolean[] array, int startIndexInclusive, int endIndexExclusive, int offset) {
+        return ((array == null || startIndexInclusive >= array.length - 1 || endIndexExclusive <= 0) || (endIndexExclusive - startIndexInclusive <= 1));
+    }
+
+    public static boolean shiftHelper2(final int n, final int offset) {
+        return (n > 1 && offset > 0);
+    }
+
     /**
      * Shifts the order of a series of elements in the given boolean array.
      *
@@ -7140,54 +7148,32 @@ public class ArrayUtils {
      * @since 3.5
      */
     public static void shift(final boolean[] array, int startIndexInclusive, int endIndexExclusive, int offset) {
-        if (array == null || startIndexInclusive >= array.length - 1 || endIndexExclusive <= 0) {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(0);
+        if (shiftHelper1(array, startIndexInclusive, endIndexExclusive, offset)) {
             return;
-        } else {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(1);
         }
         startIndexInclusive = max0(startIndexInclusive);
         endIndexExclusive = Math.min(endIndexExclusive, array.length);
         int n = endIndexExclusive - startIndexInclusive;
-        if (n <= 1) {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(2);
-            return;
-        } else {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(9);
-        }
         offset %= n;
         if (offset < 0) {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(3);
             offset += n;
-        } else {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(4);
         }
         // For algorithm explanations and proof of O(n) time complexity and O(1) space complexity
         // see https://beradrian.wordpress.com/2015/04/07/shift-an-array-in-on-in-place/
-        boolean enteredLoop = false;
-        while (n > 1 && offset > 0) {
-            enteredLoop = true;
+        while (shiftHelper2(n, offset)) {
             final int nOffset = n - offset;
             if (offset > nOffset) {
-                org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(6);
                 swap(array, startIndexInclusive, startIndexInclusive + n - nOffset,  nOffset);
                 n = offset;
                 offset -= nOffset;
             } else if (offset < nOffset) {
-                org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(7);
                 swap(array, startIndexInclusive, startIndexInclusive + nOffset,  offset);
                 startIndexInclusive += offset;
                 n = nOffset;
             } else {
-                org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(8);
                 swap(array, startIndexInclusive, startIndexInclusive + nOffset, offset);
                 break;
             }
-        }
-        if (enteredLoop) {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(5);
-        } else {
-            org.apache.commons.lang3.coverage.ShiftBranchCoverage.hit(10);
         }
     }
 
