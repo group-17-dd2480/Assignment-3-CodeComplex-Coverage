@@ -81,6 +81,8 @@ class NumberUtilsTest extends AbstractLangTest {
             + " for isCreatable/createNumber using \"" + val + "\" but got " + isValid + " and " + canCreate);
     }
 
+    
+
     @SuppressWarnings("deprecation")
     private void compareIsNumberWithCreateNumber(final String val, final boolean expected) {
         final boolean isValid = NumberUtils.isNumber(val);
@@ -886,6 +888,17 @@ class NumberUtilsTest extends AbstractLangTest {
         compareIsCreatableWithCreateNumber(".D", false); // LANG-1646
         compareIsCreatableWithCreateNumber(".e10", false); // LANG-1646
         compareIsCreatableWithCreateNumber(".e10D", false); // LANG-1646
+    }
+
+    //new tests to improve branch coverage
+    @Test
+    void testIsCreatable_edgeCases_0x() {
+    assertEquals(false, NumberUtils.isCreatable("0x"));
+    }
+    
+    @Test
+    void testIsCreatable_edgeCases_double_e() {
+    assertEquals(false, NumberUtils.isCreatable("1E2E3"));
     }
 
     @Test
