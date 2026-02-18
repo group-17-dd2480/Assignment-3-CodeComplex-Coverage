@@ -955,7 +955,7 @@ class DateUtilsTest extends AbstractLangTest {
     }
     @AfterAll
         public static void printCoverage() {
-        int totalBranches = 30; // set this to your actual count
+        int totalBranches = 27; // set this to your actual count
         int covered = 0;
 
         for (int i = 0; i < totalBranches; i++) {
@@ -966,7 +966,7 @@ class DateUtilsTest extends AbstractLangTest {
         }
 
         System.out.println("Total covered: " + covered);
-        System.out.println("Coverage %: " + (covered * 100.0 / totalBranches));
+        System.out.println("Coverage %: " + (covered * 100.0 /( totalBranches-1)));
         }
 
 
