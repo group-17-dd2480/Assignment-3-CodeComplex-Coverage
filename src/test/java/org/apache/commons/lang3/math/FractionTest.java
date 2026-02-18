@@ -1181,4 +1181,5 @@ class FractionTest extends AbstractLangTest {
         // If we use 1 and -1, it skips the even numbers loop (B10 and B12)
         assertEquals(1, callPrivateGcd(1, -1));
     }
+
 }
