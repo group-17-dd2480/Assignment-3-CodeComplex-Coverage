@@ -1770,6 +1770,12 @@ class StringUtilsTest extends AbstractLangTest {
 
         assertIllegalArgumentException(() -> StringUtils.replaceEach("abba", new String[] { "a" }, new String[] { "b", "a" }),
                 "StringUtils.replaceEach(String, String[], String[]) expecting IllegalArgumentException");
+
+        // Tests added for DD2480
+        // Replace String with the same String
+        assertEquals(StringUtils.replaceEach("aba", new String[] { "a" }, new String[] { "a" }), "aba");
+        // Replace a String that is not in the String
+        assertEquals(StringUtils.replaceEach("aba", new String[] { "c" }, new String[] { "d" }), "aba");
     }
 
     /**
