@@ -46,7 +46,9 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.coverage.ShiftBranchCoverage;
 import org.apache.commons.lang3.function.Suppliers;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -64,6 +66,11 @@ class ArrayUtilsTest extends AbstractLangTest {
 
     private static Random seededRandom() {
         return new Random(SEED);
+    }
+
+    @AfterAll
+    static void reportBranchCoverage() {
+        ShiftBranchCoverage.report();
     }
 
     @SafeVarargs
@@ -4569,6 +4576,26 @@ class ArrayUtilsTest extends AbstractLangTest {
         ArrayUtils.shift(array, 1);
         assertNull(array);
     }
+
+    // Skips while loop
+    @Test
+    void testShiftBooleanOffsetZero() {
+        final boolean[] array = { true, true, false, false };
+        ArrayUtils.shift(array, 0);
+        assertTrue(array[0]);
+        assertTrue(array[1]);
+        assertFalse(array[2]);
+        assertFalse(array[3]);
+    }
+
+    // Activates else within while loop
+    @Test
+    void testShiftBooleanOffsetEqualsNOffset() {
+        final boolean[] array = { true, false, true, false };
+        ArrayUtils.shift(array, 0, 4, 2);
+        assertArrayEquals(new boolean[] { true, false, true, false }, array);
+    }
+
 
     @Test
     void testShiftByte() {
