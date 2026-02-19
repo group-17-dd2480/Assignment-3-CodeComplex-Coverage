@@ -179,7 +179,7 @@ Since the code computes start and end dates for either month format or week form
    The results are relatively consistent when comparing with the coverage tool Jacoco, which resulted in a coverage of 90% vs the manual implementations result of 92%
 
 ## Coverage Improvement
-Coverage improvement was done for isCreatable as the two uncovered branches in the previously chosen function iterator were unreachable.
+Coverage improvement was done for isCreatable as the two uncovered branches in the previously chosen function iterator were unreachable. The coverage improvement increased from 84% to 92% with two new tests added.
 
 ## Complexity
 
