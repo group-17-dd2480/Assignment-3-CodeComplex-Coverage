@@ -146,6 +146,43 @@ with reasons why you changed to a different one.
 
 ## Complexity
 
+### Function: `Dateutils::iterator`
+
+**Lizard tool results:**
+iterator> ng3\text\StrSubstitutor.java
+      66     18    374      2      71 DateUtils::iterator@973-1043@.\src\main\java\org\apache\commons\lang3\time
+
+**Manual CC count:**
+18
+
+**Questions:**
+
+1. **Did tool and manual count get the same result?**  
+   The manual counting for CC gave the same result as the tool Lizard, the formula for calculating it was derived from: https://en.wikipedia.org/wiki/Cyclomatic_complexity 
+2. **Are the functions long as well as complex?**  
+   The function is relatively complex, and moderartely long (around 60 lines).
+3. **What is the purpose of the function?**  
+   The purpose of this function is to compute start and end Calendar dates for a given range style, the high CC can be attributed to multiple modes needing more switch statements as well as need for normalisations, leading to using more if statements. 
+4. **Are exceptions taken into account?**  
+   No, the exceptions are not taken into account.
+5. **Is the documentation clear about all possible outcomes?**  
+   The documentation for the function only provides a general overview of the functions purpose, inputs and outputs.
+
+## Refactoring
+Since the code computes start and end dates for either month format or week format, splitting the month and week logic into two separate functions can decrease the CC - like buildMonthRange and buildWeekRange. Each method handles only its own date calculations and cutoff adjustments. The main iterator method then just calls the appropriate builder based on the range style. This removes the nested switch statements and reduces branching in each method. As a result, the code becomes easier to read, test, and maintain and lower CC.
+
+## Coverage
+1. **What is the quality of your own coverage measurement? Does it take into account ternary operators (condition ? yes : no) and exceptions, if available in your language?** The tool is very basic and is implemented specific to the function, the ternary operators are not automatically detected - they need to be instrumented
+2. **What are the limitations of your tool? How would the instrumentation change if you modify the program?**
+   One limitation is it is not easily scalable for more functions, the tool was only implemented for the specific function in question and the source code would need to be modified for any changes. Consequently, it is also more error prone.
+3. **Are the results of your tool consistent with existing coverage tools?**  
+   The results are relatively consistent when comparing with the coverage tool Jacoco, which resulted in a coverage of 90% vs the manual implementations result of 92%
+
+## Coverage Improvement
+Coverage improvement was done for isCreatable as the two uncovered branches in the previously chosen function iterator were unreachable.
+
+## Complexity
+
 ### Function: `StringUtils::splitWorker`
 
 **Lizard tool results:**
@@ -234,6 +271,7 @@ It supports:
 
 
 Number of test cases added: two per team member (P) or at least four (P+).
+
 
 ## Self-Assessment: Way of Working
 
