@@ -680,3 +680,218 @@ The refactoring would separate responsibilities into dedicated helper functions.
 ## Analysis of Remaining Uncovered Branches (B10 and B13)
 
 Even after adding new tests, branches B10 and B13 remain uncovered due to the structure of the algorithm. Branch B10 (the `else` case of `if (v > 0)`) is rarely reached because inputs where `v` is zero or negative often trigger earlier returns, such as the zero-input check or the `abs(v) == 1`, before execution reaches the normalization step. Branch B13 (`k == 31`) represents an overflow condition that would require both inputs to be divisible by \(2^{31}\), which in practice means both must be `Integer.MIN_VALUE`. However, earlier safety checks and the control flow of the algorithm make this state nearly impossible to reach during normal execution. Therefore, these branches can be considered logically unreachable, and achieving 100% branch coverage for this method is unrealistic without modifying the implementation.
+
+# Analysis of StringUtils::replaceEach(String, String[], String[], boolean, int)
+
+Sofia Andersson
+
+---
+
+## 1.  Locator
+
+```java
+StringUtils::replaceEach@6426-6543@./src/main/java/org/apache/commons/lang3/StringUtils.java
+```
+
+---
+
+## 2. Function Source Code
+
+```java
+private static String replaceEach(
+        final String text, final String[] searchList, final String[] replacementList, final boolean repeat,
+        final int timeToLive) {
+
+    // Performance note: This creates very few new objects (one major goal)
+    // let me know if there are performance requests, we can create a harness to measure
+    if (isEmpty(text) || ArrayUtils.isEmpty(searchList) || ArrayUtils.isEmpty(replacementList)) {
+        return text;
+    }
+
+    // if recursing, this shouldn't be less than 0
+    if (timeToLive < 0) {
+        throw new IllegalStateException("Aborting to protect against StackOverflowError - " +
+                "output of one loop is the input of another");
+    }
+
+    final int searchLength = searchList.length;
+    final int replacementLength = replacementList.length;
+
+    // make sure lengths are ok, these need to be equal
+    if (searchLength != replacementLength) {
+        throw new IllegalArgumentException("Search and Replace array lengths don't match: "
+                + searchLength
+                + " vs "
+                + replacementLength);
+    }
+
+    // keep track of which still have matches
+    final boolean[] noMoreMatchesForReplIndex = new boolean[searchLength];
+
+    // index on index that the match was found
+    int textIndex = -1;
+    int replaceIndex = -1;
+    int tempIndex;
+
+    // index of replace array that will replace the search string found
+    // NOTE: logic duplicated below START
+    for (int i = 0; i < searchLength; i++) {
+        if (noMoreMatchesForReplIndex[i] || isEmpty(searchList[i]) || replacementList[i] == null) {
+            continue;
+        }
+        tempIndex = text.indexOf(searchList[i]);
+
+        // see if we need to keep searching for this
+        if (tempIndex == -1) {
+            noMoreMatchesForReplIndex[i] = true;
+        } else if (textIndex == -1 || tempIndex < textIndex) {
+            textIndex = tempIndex;
+            replaceIndex = i;
+        }
+    }
+    // NOTE: logic mostly below END
+
+    // no search strings found, we are done
+    if (textIndex == -1) {
+        return text;
+    }
+
+    int start = 0;
+
+    // get a good guess on the size of the result buffer so it doesn't have to double if it goes over a bit
+    int increase = 0;
+
+    // count the replacement text elements that are larger than their corresponding text being replaced
+    for (int i = 0; i < searchList.length; i++) {
+        if (searchList[i] == null || replacementList[i] == null) {
+            continue;
+        }
+        final int greater = replacementList[i].length() - searchList[i].length();
+        if (greater > 0) {
+            increase += 3 * greater; // assume 3 matches
+        }
+    }
+    // have upper-bound at 20% increase, then let Java take over
+    increase = Math.min(increase, text.length() / 5);
+
+    final StringBuilder buf = new StringBuilder(text.length() + increase);
+
+    while (textIndex != -1) {
+
+        for (int i = start; i < textIndex; i++) {
+            buf.append(text.charAt(i));
+        }
+        buf.append(replacementList[replaceIndex]);
+
+        start = textIndex + searchList[replaceIndex].length();
+
+        textIndex = -1;
+        replaceIndex = -1;
+        // find the next earliest match
+        // NOTE: logic mostly duplicated above START
+        for (int i = 0; i < searchLength; i++) {
+            if (noMoreMatchesForReplIndex[i] || isEmpty(searchList[i]) || replacementList[i] == null) {
+                continue;
+            }
+            tempIndex = text.indexOf(searchList[i], start);
+
+            // see if we need to keep searching for this
+            if (tempIndex == -1) {
+                noMoreMatchesForReplIndex[i] = true;
+            } else if (textIndex == -1 || tempIndex < textIndex) {
+                textIndex = tempIndex;
+                replaceIndex = i;
+            }
+        }
+        // NOTE: logic duplicated above END
+
+    }
+    final int textLength = text.length();
+    for (int i = start; i < textLength; i++) {
+        buf.append(text.charAt(i));
+    }
+    final String result = buf.toString();
+    if (!repeat) {
+        return result;
+    }
+
+    return replaceEach(result, searchList, replacementList, repeat, timeToLive - 1);
+}
+```
+
+---
+
+## 3. Complexity Analysis
+
+### 3.1 Tool-based Measurement (lizard)
+
+Command used:
+
+```bash
+lizard -l java src/main/java/org/apache/commons/lang3/StringUtils.java | grep replaceEach
+```
+
+Output:
+
+```text
+80     29    594      5     118 StringUtils::replaceEach@
+```
+
+Interpretation:
+
+- CCN = 80
+- NLOC = 29
+- Tokens = 595
+- Parameters = 5
+- Length ≈ 118 lines
+
+---
+
+### 3.2 Manual Cyclomatic Complexity Count
+
+Decision points counted:
+
+- if statements
+- while loops
+- for loop
+
+According to my count there are 28 decision points. The McCabe formula for cyclomatic complexity is $CC=1+\pi$ where $\pi$ is the number of decision points. Thus the cyclomatic complexity is 29. This matches lizard.
+
+More details:\
+[github.com/group-17-dd2480/Assignment-3-CodeComplex-Coverage/issues/6](https://github.com/group-17-dd2480/Assignment-3-CodeComplex-Coverage/issues/6)
+
+---
+
+## 4. Coverage Analysis
+
+I used VsCodes Java test library coverage. It showed good coverage in the branch.
+
+## 5. Coverage Improvement (Tests Added)
+
+Branch:
+
+```bash
+git checkout features/tests-for-StringUtils-replaceEach
+```
+
+```java
+// Replace String with the same String
+assertEquals(StringUtils.replaceEach("aba", new String[] { "a" }, new String[] { "a" }), "aba");
+// Replace a String that is not in the String
+assertEquals(StringUtils.replaceEach("aba", new String[] { "c" }, new String[] { "d" }), "aba");
+```
+
+ ---
+
+## Refactoring Plan
+
+`replaceEach` function can be refactored by moving a part into a different function. In the function there is a `for` loop that is duplicated in the code, it is surrounded by these comments. It could also be divided into several different functions for the different parts. Ex first it has several checks whether the input is valid, this could easily be divided into a separate function.
+
+```java
+// NOTE: logic mostly duplicated above START
+...
+// NOTE: logic duplicated above END
+```
+
+Finding a way to only have it written once, maybe by replacing the while loop with a do/while loop.
+
