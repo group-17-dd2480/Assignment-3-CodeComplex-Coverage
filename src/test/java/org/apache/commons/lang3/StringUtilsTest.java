@@ -62,10 +62,6 @@ import org.junitpioneer.jupiter.WritesDefaultLocale;
 @SuppressWarnings("deprecation") // deliberate use of deprecated code
 class StringUtilsTest extends AbstractLangTest {
 
-    @AfterAll
-    static void printCoverage() {
-        StringUtils.printSplitWorkerCoverage();
-    }
 
     static final String WHITESPACE;
     static final String NON_WHITESPACE;

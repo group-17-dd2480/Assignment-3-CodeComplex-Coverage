@@ -178,13 +178,44 @@ splitWorker(String, String, int, boolean) = 22 - 3 + 2 = 21 (Lizard CC = 23)
 
 ## Refactoring
 
-Plan for refactoring complex code:
+### Plan for refactoring complex code
 
-Estimated impact of refactoring (lower CC, but other drawbacks?).
+**First overload (`splitWorker(String, char, boolean)`):**
 
-Carried out refactoring (optional, P+):
+Delegate to the second overload. The single-char path already handles this case, so there's no need for duplicate code.
 
-`git diff ...`
+**Second overload (`splitWorker(String, String, int, boolean)`):**
+
+Extract the three tokenization paths into separate methods:
+- `tokenizeByWhitespace()`
+- `tokenizeBySingleChar()` 
+- `tokenizeByMultiChar()`
+- `finalizeSplitResult()`
+
+### Estimated impact of refactoring
+
+| Method | Before | After | Reduction |
+|--------|--------|-------|-----------|
+| `splitWorker(char)` | CC=10 | CC=1 | **90%** |
+| `splitWorker(String)` | CC=23 | CC=5 | **78%** |
+
+**Benefits:**
+- Single Responsibility Principle 
+- DRY (Don't Repeat Yourself)
+- Testability - Each tokenization path can be tested independently 
+- Readability - The main method is now a simple dispatcher
+
+**Drawbacks:**
+- Code spread across more methods
+- Original was "performance tuned for JDK 1.4" - might lose micro-optimizations
+
+### Carried out refactoring (P+)
+
+All existing tests pass after refactoring.
+
+```bash
+git diff master -- src/main/java/org/apache/commons/lang3/StringUtils.java
+```
 
 ## Coverage
 
@@ -238,6 +269,7 @@ Number of test cases added: two per team member (P) or at least four (P+).
 ## Self-Assessment: Way of Working
 
 Current state according to the Essence standard: ...
+
 
 Was the self-assessment unanimous? Any doubts about certain items?
 
