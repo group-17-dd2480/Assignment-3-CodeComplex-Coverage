@@ -168,37 +168,48 @@ Carried out refactoring (optional, P+):
 
 ### Tools
 
-Document your experience in using a new/different coverage tool. How well was
-the tool documented? Was it possible, easy, or difficult to integrate it with
-your build environment?
+JaCoCo was used for automated coverage measurement. It was already integrated into the Maven build via the `jacoco-maven-plugin`. Running `mvn test jacoco:report -Drat.skip=true` generates an HTML report.
+JaCoCo was well-documented and easy to use since it was pre-configured in the project. No additional setup was required.
 
 ### Your Own Coverage Tool
 
-Show a patch (or link to a branch) that shows the instrumented code to gather
-coverage measurements. The patch is probably too long to be copied here, so
-please add the git command used to obtain the patch instead:
+I implemented manual branch coverage instrumentation for `splitWorker` by adding a static boolean array `SPLITWORKER_COVERAGE[38]` to `StringUtils.java`. Each branch outcome sets a flag when executed.
 
-`git diff ...`
+**Git diff command:**
+- Added `SPLITWORKER_COVERAGE[38]` array and helper methods
+- Instrumented both `splitWorker` methods with `SPLITWORKER_COVERAGE[n] = true;` at each branch
+- Added `@AfterAll` in `StringUtilsTest.java` to print coverage after tests
 
-What kinds of constructs does your tool support, and how accurate is its output?
+
+It supports:
+- `if`/`else` branches
+- `while` loop entry
+- Short-circuit `||` and `&&` operators (partial - we track when the combined condition is true)
+- Early `return` statements
+
+**How to use:**
+1. Run tests normally
+2. There is an included @AfterAll method that prints the coverage report to the console
 
 ### Evaluation
 
-1. How detailed is your coverage measurement?
-2. What are the limitations of your own tool?
-3. Are the results of your tool consistent with existing coverage tools?
+1. **How detailed is your coverage measurement?**  
+   I track 38 branch outcomes across both `splitWorker` overloads. I report HIT/MISS for each branch and a total percentage.
 
+2. **What are the limitations of your own tool?**  
+   - It only covers `splitWorker` methods
+   - It does not track individual operator outcomes separately (e.g., `a || b` is only tracked as one condition, not two)
+   - Any refactoring breaks the instrumentation
+   - Need to call print method manually
+
+3. **Are the results of your tool consistent with existing coverage tools?**  
+   JaCoCo Branch Coverage: splitWorker(String, char, boolean) = 62% and splitWorker(String, String, int, boolean) 62% 
+   DIY Tool: splitWorker(String, char, boolean) = 71% (10/14 branches) and splitWorker(String, String, int, boolean) = 88% (21/24 branches)
+
+   The results are mostly consistent but JaCoCo returns slightly worse coverage. This could be because JaCoCo tracks more fine-grained branch outcomes (e.g., each `||` and `&&` operand separately)
+ 
 ## Coverage Improvement
 
-Show the comments that describe the requirements for the coverage.
-
-Report of old coverage: [link]
-
-Report of new coverage: [link]
-
-Test cases added:
-
-`git diff ...`
 
 Number of test cases added: two per team member (P) or at least four (P+).
 
