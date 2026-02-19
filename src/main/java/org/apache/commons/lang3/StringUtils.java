@@ -7576,6 +7576,77 @@ public class StringUtils {
         return splitWorker(str, separatorChars, max, true);
     }
 
+    // Coverage array for splitWorker methods. Each index represents a branch.
+    public static final boolean[] SPLITWORKER_COVERAGE = new boolean[38];
+
+    /**
+     * Prints the branch coverage results for splitWorker methods.
+     * Call this after running tests to see which branches were hit.
+     */
+    public static void printSplitWorkerCoverage() {
+        System.out.println("splitWorker(String, char, boolean):");
+        String[] branch1Names = {
+                "B0: str == null (true)",
+                "B1: str == null (false)",
+                "B2: len == 0 (true)",
+                "B3: len == 0 (false)",
+                "B4: while loop entered",
+                "B5: (str.charAt(i) == separatorChar) (true)",
+                "B6: (str.charAt(i) == separatorChar) (false)",
+                "B7: match || preserveAllTokens (true)",
+                "B8: match || preserveAllTokens (false)",
+                "B9: (match || preserveAllTokens && lastMatch)",
+                "B10: (match || preserveAllTokens && lastMatch)",
+                "B11: return null",
+                "B12: return ArrayUtils.EMPTY_STRING_ARRAY",
+                "B13: return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY)"
+        };
+        for (int i = 0; i < 14; i++) {
+            System.out.println("  " + branch1Names[i] + ": " + (SPLITWORKER_COVERAGE[i] ? "HIT" : "MISS"));
+        }
+        System.out.println("splitWorker(String, String, int, boolean):");
+        String[] branch2Names = {
+                "B14: str == null (true)",
+                "B15: str == null (false)",
+                "B16: len == 0 (true)",
+                "B17: len == 0 (false)",
+                "B18: separatorChars == null (whitespace path)",
+                "B19: separatorChars.length() == 1 (single-char path)",
+                "B20: else (multi-char path)",
+                "B21: while (i < len) whitespace path",
+                "B22: (Character.isWhitespace(str.charAt(i)))",
+                "B23: (match || preserveAllTokens) whitespace",
+                "B24: (sizePlus1++ == max) whitespace",
+                "B25: while (i < len) single-char path",
+                "B26: (str.charAt(i) == sep)",
+                "B27: (match || preserveAllTokens) single-char",
+                "B28: (sizePlus1++ == max) single-char",
+                "B29: while (i < len) multi-char path",
+                "B30: (separatorChars.indexOf(str.charAt(i)) >= 0)",
+                "B31: (match || preserveAllTokens) multi-char",
+                "B32: (sizePlus1++ == max) multi-char",
+                "B33: (match || preserveAllTokens && lastMatch)",
+                "B34: (match || preserveAllTokens && lastMatch)",
+                "B35: return null",
+                "B36: return ArrayUtils.EMPTY_STRING_ARRAY",
+                "B37: return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY)"
+        };
+        for (int i = 14; i < 38; i++) {
+            System.out.println("  " + branch2Names[i - 14] + ": " + (SPLITWORKER_COVERAGE[i] ? "HIT" : "MISS"));
+        }
+        int hits = 0;
+        for (boolean b : SPLITWORKER_COVERAGE) if (b) hits++;
+        System.out.println("Total: " + (hits * 100 / 38) + "%)");
+    }
+
+    /**
+     * Resets the coverage array. Call before running a new test suite.
+     */
+    public static void resetSplitWorkerCoverage() {
+        java.util.Arrays.fill(SPLITWORKER_COVERAGE, false);
+    }
+    // ===== END DIY BRANCH COVERAGE TOOL =====
+
     /**
      * Performs the logic for the {@code split} and {@code splitPreserveAllTokens} methods that do not return a maximum array length.
      *
@@ -7596,7 +7667,7 @@ public class StringUtils {
         //   D7: if (match || preserveAllTokens && lastMatch)
         //   D8: || in D7
         //   D9: && in D7
-        //   E1: return nul
+        //   E1: return null
         //   E2: return ArrayUtils.EMPTY_STRING_ARRAY
         //   E3: return  return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY)
         //
@@ -7604,34 +7675,50 @@ public class StringUtils {
 
         // Performance tuned for 2.0 (JDK1.4)
         if (str == null) { // D1
+            SPLITWORKER_COVERAGE[0] = true;
+            SPLITWORKER_COVERAGE[11] = true;
             return null; // E1
         }
+        SPLITWORKER_COVERAGE[1] = true;
         final int len = str.length();
         if (len == 0) { // D2
+            SPLITWORKER_COVERAGE[2] = true;
+            SPLITWORKER_COVERAGE[12] = true;
             return ArrayUtils.EMPTY_STRING_ARRAY; // E2
         }
+        SPLITWORKER_COVERAGE[3] = true;
         final List<String> list = new ArrayList<>();
         int i = 0;
         int start = 0;
         boolean match = false;
         boolean lastMatch = false;
         while (i < len) { // D3
+            SPLITWORKER_COVERAGE[4] = true;
             if (str.charAt(i) == separatorChar) { // D4
+                SPLITWORKER_COVERAGE[5] = true;
                 if (match || preserveAllTokens) { // D5, D6 (if and ||)
+                    SPLITWORKER_COVERAGE[7] = true;
                     list.add(str.substring(start, i));
                     match = false;
                     lastMatch = true;
+                } else {
+                    SPLITWORKER_COVERAGE[8] = true;
                 }
                 start = ++i;
                 continue;
             }
+            SPLITWORKER_COVERAGE[6] = true;
             lastMatch = false;
             match = true;
             i++;
         }
         if (match || preserveAllTokens && lastMatch) { // D7, D8, D9 (if, ||, &&)
+            SPLITWORKER_COVERAGE[9] = true;
             list.add(str.substring(start, i));
+        } else {
+            SPLITWORKER_COVERAGE[10] = true;
         }
+        SPLITWORKER_COVERAGE[13] = true;
         return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY); // E3
     }
 
@@ -7671,7 +7758,7 @@ public class StringUtils {
         //   D22: && in D20
         //   E1: return null
         //   E2: return ArrayUtils.EMPTY_STRING_ARRAY
-        //   return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY)
+        //   E3: return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY)
         //
         // CC = 22 - 3 + 2 = 21
 
@@ -7679,12 +7766,18 @@ public class StringUtils {
         // Direct code is quicker than StringTokenizer.
         // Also, StringTokenizer uses isSpace() not isWhitespace()
         if (str == null) { // D1
+            SPLITWORKER_COVERAGE[14] = true;
+            SPLITWORKER_COVERAGE[35] = true;
             return null; // E1
         }
+        SPLITWORKER_COVERAGE[15] = true;
         final int len = str.length();
         if (len == 0) { // D2
+            SPLITWORKER_COVERAGE[16] = true;
+            SPLITWORKER_COVERAGE[36] = true;
             return ArrayUtils.EMPTY_STRING_ARRAY; // E2
         }
+        SPLITWORKER_COVERAGE[17] = true;
         final List<String> list = new ArrayList<>();
         int sizePlus1 = 1;
         int i = 0;
@@ -7692,12 +7785,17 @@ public class StringUtils {
         boolean match = false;
         boolean lastMatch = false;
         if (separatorChars == null) { // D3
+            SPLITWORKER_COVERAGE[18] = true;
             // Null separator means use whitespace
             while (i < len) { // D4
+                SPLITWORKER_COVERAGE[21] = true;
                 if (Character.isWhitespace(str.charAt(i))) { // D5
+                    SPLITWORKER_COVERAGE[22] = true;
                     if (match || preserveAllTokens) { // D6, D7 (if and ||)
+                        SPLITWORKER_COVERAGE[23] = true;
                         lastMatch = true;
                         if (sizePlus1++ == max) { // D8
+                            SPLITWORKER_COVERAGE[24] = true;
                             i = len;
                             lastMatch = false;
                         }
@@ -7712,13 +7810,18 @@ public class StringUtils {
                 i++;
             }
         } else if (separatorChars.length() == 1) { // D9
+            SPLITWORKER_COVERAGE[19] = true;
             // Optimize 1 character case
             final char sep = separatorChars.charAt(0);
             while (i < len) { // D10
+                SPLITWORKER_COVERAGE[25] = true;
                 if (str.charAt(i) == sep) { // D11
+                    SPLITWORKER_COVERAGE[26] = true;
                     if (match || preserveAllTokens) { // D12, D13 (if and ||)
+                        SPLITWORKER_COVERAGE[27] = true;
                         lastMatch = true;
                         if (sizePlus1++ == max) { // D14
+                            SPLITWORKER_COVERAGE[28] = true;
                             i = len;
                             lastMatch = false;
                         }
@@ -7733,12 +7836,16 @@ public class StringUtils {
                 i++;
             }
         } else {
+            SPLITWORKER_COVERAGE[20] = true;
             // standard case
             while (i < len) { // D15
                 if (separatorChars.indexOf(str.charAt(i)) >= 0) { // D16
+                    SPLITWORKER_COVERAGE[30] = true;
                     if (match || preserveAllTokens) { // D17, D18 (if and ||)
+                        SPLITWORKER_COVERAGE[31] = true;
                         lastMatch = true;
                         if (sizePlus1++ == max) { // D19
+                            SPLITWORKER_COVERAGE[32] = true;
                             i = len;
                             lastMatch = false;
                         }
@@ -7748,14 +7855,19 @@ public class StringUtils {
                     start = ++i;
                     continue;
                 }
+                SPLITWORKER_COVERAGE[29] = true;
                 lastMatch = false;
                 match = true;
                 i++;
             }
         }
         if (match || preserveAllTokens && lastMatch) { // D20, D21, D22 (if, || and &&)
+            SPLITWORKER_COVERAGE[33] = true;
             list.add(str.substring(start, i));
+        } else {
+            SPLITWORKER_COVERAGE[34] = true;
         }
+        SPLITWORKER_COVERAGE[37] = true;
         return list.toArray(ArrayUtils.EMPTY_STRING_ARRAY); // E3
     }
 

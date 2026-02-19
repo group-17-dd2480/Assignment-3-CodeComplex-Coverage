@@ -46,6 +46,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.function.Suppliers;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.text.WordUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,6 +61,11 @@ import org.junitpioneer.jupiter.WritesDefaultLocale;
  */
 @SuppressWarnings("deprecation") // deliberate use of deprecated code
 class StringUtilsTest extends AbstractLangTest {
+
+    @AfterAll
+    static void printCoverage() {
+        StringUtils.printSplitWorkerCoverage();
+    }
 
     static final String WHITESPACE;
     static final String NON_WHITESPACE;
