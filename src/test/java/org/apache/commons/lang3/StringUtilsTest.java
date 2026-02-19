@@ -3183,4 +3183,63 @@ class StringUtilsTest extends AbstractLangTest {
         assertSame("ab/ab", StringUtils.wrapIfMissing("ab/ab", "ab"));
         assertSame("//x//", StringUtils.wrapIfMissing("//x//", "//"));
     }
+
+    // ===== NEW TESTS FOR SPLITWORKER BRANCH COVERAGE (TICKET-6) =====
+
+    /**
+     * Test splitWorker(char) with null input - covers B0, B11
+     */
+    @Test
+    void testSplitWorkerCharNull() {
+        assertNull(StringUtils.split(null, ','));
+    }
+
+    /**
+     * Test splitWorker(char) with empty input - covers B2, B12
+     */
+    @Test
+    void testSplitWorkerCharEmpty() {
+        String[] result = StringUtils.split("", ',');
+        assertEquals(0, result.length);
+    }
+
+    /**
+     * Test splitWorker(char) where string ends with separator and preserveAllTokens is false - covers B10
+     */
+    @Test
+    void testSplitWorkerCharFinalConditionFalse() {
+        // "a,b," with split (not preserveAllTokens) - ends with separator, no trailing match
+        String[] result = StringUtils.split("a,b,", ',');
+        assertArrayEquals(new String[]{"a", "b"}, result);
+    }
+
+    /**
+     * Test splitWorker(String) with max limit on single-char separator - covers B28
+     */
+    @Test
+    void testSplitWorkerStringSingleCharMax() {
+        // Split with max=2 using single-char separator string
+        String[] result = StringUtils.split("a,b,c,d", ",", 2);
+        assertArrayEquals(new String[]{"a", "b,c,d"}, result);
+    }
+
+    /**
+     * Test splitWorker(String) with max limit on multi-char separator - covers B32
+     */
+    @Test
+    void testSplitWorkerStringMultiCharMax() {
+        // Split with max=2 using multi-char separator string
+        String[] result = StringUtils.split("a,b;c,d", ",;", 2);
+        assertArrayEquals(new String[]{"a", "b;c,d"}, result);
+    }
+
+    /**
+     * Test splitWorker(String) with null separator and max limit - covers B24
+     */
+    @Test
+    void testSplitWorkerStringWhitespaceMax() {
+        // Split with max=2 using whitespace (null separator)
+        String[] result = StringUtils.split("a b c d", null, 2);
+        assertArrayEquals(new String[]{"a", "b c d"}, result);
+    }
 }

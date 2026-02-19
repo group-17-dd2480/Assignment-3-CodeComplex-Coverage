@@ -232,8 +232,37 @@ It supports:
  
 ## Coverage Improvement
 
+### Baseline Coverage (before new tests)
 
-Number of test cases added: two per team member (P) or at least four (P+).
+| Method | DIY Tool | JaCoCo Branch |
+|--------|----------|---------------|
+| `splitWorker(String, char, boolean)` | 71% (10/14) | 62% |
+| `splitWorker(String, String, int, boolean)` | 88% (21/24) | 62% |
+
+### New Coverage (after new tests)
+
+| Method | DIY Tool | JaCoCo Branch |
+|--------|----------|---------------|
+| `splitWorker(String, char, boolean)` | **100% (14/14)** | ~95% (improved from 71%) |
+| `splitWorker(String, String, int, boolean)` | **100% (24/24)** | 100% (improved from 63%) |
+
+Note: JaCoCo counts more branches than our DIY tool because it tracks each `||` and `&&` operand separately.
+
+### Test cases added (6 tests - P+ requirement met)
+
+testSplitWorkerCharNull: null input returns null
+testSplitWorkerCharEmpty: empty input returns empty array
+testSplitWorkerCharFinalConditionFalse: string ending with separator
+testSplitWorkerStringSingleCharMax: max limit with single-char separator
+testSplitWorkerStringMultiCharMax: max limit with multi-char separator
+testSplitWorkerStringWhitespaceMax: max limit with whitespace separator
+
+**Git diff command:**
+```bash
+git diff master -- src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+```
+
+Number of test cases added: 6.
 
 ## Self-Assessment: Way of Working
 
