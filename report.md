@@ -215,13 +215,46 @@ splitWorker(String, String, int, boolean) = 22 - 3 + 2 = 21 (Lizard CC = 23)
 
 ## Refactoring
 
-Plan for refactoring complex code:
+#### Plan for refactoring complex code
 
-Estimated impact of refactoring (lower CC, but other drawbacks?).
+**First overload (`splitWorker(String, char, boolean)`):**
 
-Carried out refactoring (optional, P+):
+Delegate to the second overload. The single-char path already handles this case, so there's no need for duplicate code.
 
-`git diff ...`
+**Second overload (`splitWorker(String, String, int, boolean)`):**
+
+Extract the three tokenization paths into separate methods:
+- `tokenizeByWhitespace()` 
+- `tokenizeBySingleChar()` 
+- `tokenizeByMultiChar()` 
+- `finalizeSplitResult()` 
+
+#### Estimated impact of refactoring
+
+| Method | Before | After | Reduction |
+|--------|--------|-------|-----------|
+| `splitWorker(char)` | CC=10 | CC=1 | **90%** |
+| `splitWorker(String)` | CC=23 | CC=5 | **78%** |
+
+**Benefits:**
+- Single Responsibility Principle 
+- DRY (Don't Repeat Yourself)
+- Testability - Each tokenization path can be tested independently 
+- Readability - The main method is now a simple dispatcher
+
+**Drawbacks:**
+- Code spread across more methods
+- Original was "performance tuned for JDK 1.4" - might lose micro-optimizations
+
+#### Carried out refactoring (P+)
+
+All existing tests pass after refactoring.
+
+```bash
+git diff master -- src/main/java/org/apache/commons/lang3/StringUtils.java
+```
+
+
 
 ## Coverage
 
@@ -268,26 +301,37 @@ It supports:
    The results are mostly consistent but JaCoCo returns slightly worse coverage. This could be because JaCoCo tracks more fine-grained branch outcomes (e.g., each `||` and `&&` operand separately)
  
 ## Coverage Improvement
+### Baseline Coverage (before new tests)
 
+| Method | DIY Tool | JaCoCo Branch |
+|--------|----------|---------------|
+| `splitWorker(String, char, boolean)` | 71% (10/14) | 62% |
+| `splitWorker(String, String, int, boolean)` | 88% (21/24) | 62% |
 
-Number of test cases added: two per team member (P) or at least four (P+).
+### New Coverage (after new tests)
 
+| Method | DIY Tool | JaCoCo Branch |
+|--------|----------|---------------|
+| `splitWorker(String, char, boolean)` | **100% (14/14)** | ~95% (improved from 71%) |
+| `splitWorker(String, String, int, boolean)` | **100% (24/24)** | 100% (improved from 63%) |
 
-## Self-Assessment: Way of Working
+Note: JaCoCo counts more branches than our DIY tool because it tracks each `||` and `&&` operand separately.
 
-Current state according to the Essence standard: ...
+### Test cases added (6 tests - P+ requirement met)
 
-Was the self-assessment unanimous? Any doubts about certain items?
+testSplitWorkerCharNull: null input returns null
+testSplitWorkerCharEmpty: empty input returns empty array
+testSplitWorkerCharFinalConditionFalse: string ending with separator
+testSplitWorkerStringSingleCharMax: max limit with single-char separator
+testSplitWorkerStringMultiCharMax: max limit with multi-char separator
+testSplitWorkerStringWhitespaceMax: max limit with whitespace separator
 
-How have you improved so far?
+**Git diff command:**
+```bash
+git diff master -- src/test/java/org/apache/commons/lang3/StringUtilsTest.java
+```
 
-Where is potential for improvement?
-
-## Overall Experience
-
-What are your main take-aways from this project? What did you learn?
-
-Is there something special you want to mention here?
+Number of test cases added: 6.
 
 
 # Analysis of Fraction::greatestCommonDivisor(int, int)
