@@ -940,6 +940,44 @@ assertEquals(StringUtils.replaceEach("aba", new String[] { "c" }, new String[] {
 Finding a way to only have it written once, maybe by replacing the while loop with a do/while loop.
 
 
+## Analysis of `shift([]boolan, int, int, int)`
+**Function :** shift([]boolan, int, int, int)  
+(For implementation, and in-depth analysis: https://github.com/group-17-dd2480/Assignment-3-CodeComplex-Coverage/issues/8)
+
+**ArrayUtils::shift@7142-7173@./src/main/java/org/apache/commons/lang3/ArrayUtils.java**
+
+---
+
+1. **What are your results for the complex function?**  
+   a. **Did all methods (tools vs. manual count) get the same result?**  
+   Yes, the CC reported by the lizard tool was 10, and the manual calculations also show 10.  
+
+   b. **Are the results clear?**  
+   Yes.  
+
+2. **Is the function just complex, or also long?**  
+   Both, LOC can correlate with higher complexity. E.g. more conditional statements will increase complexity and LOC. However, redundant assignments and abstractions will increase LOC without increasing complexity but this is less common.  
+
+3. **What is the purpose of the function?**  
+   The function swaps a contiguous segment of an array in place by an offset. Eg. given  
+   `boolean[] boolArray = {true, false, false, false};`
+
+   | Input                          | Output                          |
+   |--------------------------------|----------------------------------|
+   | `shift(boolArray, 0, 2, 1);`   | `[false, true, false, false]`   |
+   | `shift(boolArray, 0, 3, 1);`   | `[false, true, false, false]`   |
+   | `shift(boolArray, 0, 3, 2);`   | `[false, false, true, false]`   |
+   | `shift(boolArray, 0, 4, -1);`  | `[false, false, false, true]`   |
+
+4. **Are exceptions taken into account in the given measurements?**  
+   Yes.  
+
+5. **Is the documentation clear with regards to all the possible outcomes?**  
+   No.  
+
+
+
+
 ### SEMAT
 
 According to the Essence standard, our team is currently in the “In Place” state of the Way of Working. We have established a shared and documented way of working that is understood and consistently followed by all group members. Because we already have good familiarity with Java, Maven, and Git, onboarding into the project and setting up the workflow went smoothly. We use Git for version control, Maven for building and running tests, and tools such as JaCoCo and Lizard that where required for this lab where easy to use due to how we used java and maven before. Responsibilities are clearly divided, and collaboration is handled through branches and pull requests, which helps ensure that changes are communicated and reviewed within the team.
