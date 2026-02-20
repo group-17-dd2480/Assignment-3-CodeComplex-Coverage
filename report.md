@@ -939,3 +939,11 @@ assertEquals(StringUtils.replaceEach("aba", new String[] { "c" }, new String[] {
 
 Finding a way to only have it written once, maybe by replacing the while loop with a do/while loop.
 
+
+### SEMAT
+
+According to the Essence standard, our team is currently in the “In Place” state of the Way of Working. We have established a shared and documented way of working that is understood and consistently followed by all group members. Because we already have good familiarity with Java, Maven, and Git, onboarding into the project and setting up the workflow went smoothly. We use Git for version control, Maven for building and running tests, and tools such as JaCoCo and Lizard that where required for this lab where easy to use due to how we used java and maven before. Responsibilities are clearly divided, and collaboration is handled through branches and pull requests, which helps ensure that changes are communicated and reviewed within the team.
+
+To progress to the “Working Well” state, the main obstacles are efficiency and merging. Some activities, such as manual branch instrumentation and coverage analysis, are still time-consuming. But we all agree that we are going towards a more positive direction with each lab becoming easier to work with as a team. 
+
+
