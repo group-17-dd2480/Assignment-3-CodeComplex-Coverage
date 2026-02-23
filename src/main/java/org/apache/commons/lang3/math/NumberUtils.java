@@ -580,8 +580,58 @@ public class NumberUtils {
      * @return {@code true} if the string is a correctly formatted number.
      * @since 3.5
      */
+    // Coverage array for isCreatable. Each index represents a decision point (ids from p_report.md).
+    public static final boolean[] ISCREATABLE_COVERAGE = new boolean[26];
+
+    /**
+     * Prints the branch coverage results for isCreatable.
+     * Call this after running tests to see which branches were hit.
+     */
+    public static void printIsCreatableCoverage() {
+        System.out.println("NumberUtils.isCreatable(String):");
+        final String[] branchNames = {
+                "id:1 Line 584 if (isEmpty)",
+                "id:2 Line 594 ternary (isSign)",
+                "id:3 Line 595 if (leading 0 && ...)",
+                "id:4 Line 596 if (hex prefix)",
+                "id:5 Line 598 if (i == sz)",
+                "id:6 Line 602 for (hex loop)",
+                "id:7 Line 603 if (!isHex)",
+                "id:8 Line 609 if (digit after 0)",
+                "id:9 Line 612 for (octal loop)",
+                "id:10 Line 613 if (!isOctal)",
+                "id:11 Line 625 while (...)",
+                "id:12 Line 626 if (isAsciiNumeric)",
+                "id:13 Line 629 else if ('.')",
+                "id:14 Line 630 if (hasDecPoint || hasExp)",
+                "id:15 Line 635 else if (e/E)",
+                "id:16 Line 637 if (hasExp)",
+                "id:17 Line 641 if (!foundDigit)",
+                "id:18 Line 646 else if (isSign)",
+                "id:19 Line 647 if (!allowSigns)",
+                "id:20 Line 657 if (i < len)",
+                "id:21 Line 658 if (isAsciiNumeric last)",
+                "id:22 Line 662 if (e/E last)",
+                "id:23 Line 666 if ('.' last)",
+                "id:24 Line 667 if (hasDecPoint || hasExp)",
+                "id:25 Line 674 if (!allowSigns && type D/F)",
+                "id:26 Line 677 if (l/L)"
+        };
+        for (int i = 0; i < branchNames.length; i++) {
+            System.out.println("  " + branchNames[i] + ": " + (ISCREATABLE_COVERAGE[i] ? "HIT" : "MISS"));
+        }
+        int hits = 0;
+        for (final boolean b : ISCREATABLE_COVERAGE) {
+            if (b) {
+                hits++;
+            }
+        }
+        System.out.println("Total: " + hits + "/" + ISCREATABLE_COVERAGE.length + " branches hit");
+    }
+
     public static boolean isCreatable(final String str) {
         if (StringUtils.isEmpty(str)) {
+            ISCREATABLE_COVERAGE[0] = true; // id:1
             return false;
         }
         final char[] chars = str.toCharArray();
@@ -592,25 +642,34 @@ public class NumberUtils {
         boolean foundDigit = false;
         // deal with any possible sign up front
         final int start = isSign(chars[0]) ? 1 : 0;
+        ISCREATABLE_COVERAGE[1] = true; // id:2
         if (sz > start + 1 && chars[start] == '0' && !StringUtils.contains(str, '.')) { // leading 0, skip if is a decimal number
+            ISCREATABLE_COVERAGE[2] = true; // id:3
             if (chars[start + 1] == 'x' || chars[start + 1] == 'X') { // leading 0x/0X
+                ISCREATABLE_COVERAGE[3] = true; // id:4
                 int i = start + 2;
                 if (i == sz) {
+                    ISCREATABLE_COVERAGE[4] = true; // id:5
                     return false; // str == "0x"
                 }
+                ISCREATABLE_COVERAGE[5] = true; // id:6 (enter hex loop)
                 // checking hex (it can't be anything else)
                 for (; i < chars.length; i++) {
                     if (!CharUtils.isHex(chars[i])) {
+                        ISCREATABLE_COVERAGE[6] = true; // id:7
                         return false;
                     }
                 }
                 return true;
             }
             if (Character.isDigit(chars[start + 1])) {
+                ISCREATABLE_COVERAGE[7] = true; // id:8
                 // leading 0, but not hex, must be octal
                 int i = start + 1;
                 for (; i < chars.length; i++) {
+                    ISCREATABLE_COVERAGE[8] = true; // id:9
                     if (!CharUtils.isOctal(chars[i])) {
+                        ISCREATABLE_COVERAGE[9] = true; // id:10
                         return false;
                     }
                 }
@@ -623,28 +682,37 @@ public class NumberUtils {
         // loop to the next to last char or to the last char if we need another digit to
         // make a valid number (e.g. chars[0..5] = "1234E")
         while (i < sz || i < sz + 1 && allowSigns && !foundDigit) {
+            ISCREATABLE_COVERAGE[10] = true; // id:11
             if (CharUtils.isAsciiNumeric(chars[i])) {
+                ISCREATABLE_COVERAGE[11] = true; // id:12
                 foundDigit = true;
                 allowSigns = false;
             } else if (chars[i] == '.') {
+                ISCREATABLE_COVERAGE[12] = true; // id:13
                 if (hasDecPoint || hasExp) {
+                    ISCREATABLE_COVERAGE[13] = true; // id:14
                     // two decimal points or dec in exponent
                     return false;
                 }
                 hasDecPoint = true;
             } else if (chars[i] == 'e' || chars[i] == 'E') {
+                ISCREATABLE_COVERAGE[14] = true; // id:15
                 // we've already taken care of hex.
                 if (hasExp) {
+                    ISCREATABLE_COVERAGE[15] = true; // id:16
                     // two E's
                     return false;
                 }
                 if (!foundDigit) {
+                    ISCREATABLE_COVERAGE[16] = true; // id:17
                     return false;
                 }
                 hasExp = true;
                 allowSigns = true;
             } else if (isSign(chars[i])) {
+                ISCREATABLE_COVERAGE[17] = true; // id:18
                 if (!allowSigns) {
+                    ISCREATABLE_COVERAGE[18] = true; // id:19
                     return false;
                 }
                 allowSigns = false;
@@ -655,16 +723,21 @@ public class NumberUtils {
             i++;
         }
         if (i < chars.length) {
+            ISCREATABLE_COVERAGE[19] = true; // id:20
             if (CharUtils.isAsciiNumeric(chars[i])) {
+                ISCREATABLE_COVERAGE[20] = true; // id:21
                 // no type qualifier, OK
                 return true;
             }
             if (chars[i] == 'e' || chars[i] == 'E') {
+                ISCREATABLE_COVERAGE[21] = true; // id:22
                 // can't have an E at the last byte
                 return false;
             }
             if (chars[i] == '.') {
+                ISCREATABLE_COVERAGE[22] = true; // id:23
                 if (hasDecPoint || hasExp) {
+                    ISCREATABLE_COVERAGE[23] = true; // id:24
                     // two decimal points or dec in exponent
                     return false;
                 }
@@ -672,9 +745,11 @@ public class NumberUtils {
                 return foundDigit;
             }
             if (!allowSigns && (chars[i] == 'd' || chars[i] == 'D' || chars[i] == 'f' || chars[i] == 'F')) {
+                ISCREATABLE_COVERAGE[24] = true; // id:25
                 return foundDigit;
             }
             if (chars[i] == 'l' || chars[i] == 'L') {
+                ISCREATABLE_COVERAGE[25] = true; // id:26
                 // not allowing L with an exponent or decimal point
                 return foundDigit && !hasExp && !hasDecPoint;
             }

@@ -36,6 +36,7 @@ import java.text.ParseException;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -44,6 +45,11 @@ import org.junit.jupiter.params.provider.ValueSource;
  * Tests {@link org.apache.commons.lang3.math.NumberUtils}.
  */
 class NumberUtilsTest extends AbstractLangTest {
+
+    @AfterAll
+    static void printCoverage() {
+        NumberUtils.printIsCreatableCoverage();
+    }
 
     private static void assertCreateNumberZero(final String number, final Object zero, final Object negativeZero) {
         assertEquals(zero, NumberUtils.createNumber(number), () -> "Input: " + number);
