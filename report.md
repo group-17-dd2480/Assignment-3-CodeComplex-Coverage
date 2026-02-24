@@ -939,44 +939,283 @@ assertEquals(StringUtils.replaceEach("aba", new String[] { "c" }, new String[] {
 
 Finding a way to only have it written once, maybe by replacing the while loop with a do/while loop.
 
+## Function `boolean isCreatable(String)`
 
-## Analysis of `shift([]boolan, int, int, int)`
-**Function :** shift([]boolan, int, int, int)  
-(For implementation, and in-depth analysis: https://github.com/group-17-dd2480/Assignment-3-CodeComplex-Coverage/issues/8)
+### Onboarding experience
 
-**ArrayUtils::shift@7142-7173@./src/main/java/org/apache/commons/lang3/ArrayUtils.java**
+Did it build and run as documented?
 
----
+  Since a `report.md` was included in the project and the recommended command
+   to check that all tests and checks pass is `mvn`, the following error
+   occurred:
 
-1. **What are your results for the complex function?**  
-   a. **Did all methods (tools vs. manual count) get the same result?**  
-   Yes, the CC reported by the lizard tool was 10, and the manual calculations also show 10.  
+   ```bash
+   Assignment-3-CodeComplex-Coverage % mvn
+   [INFO] Scanning for projects...
+   [INFO]
+   [INFO] ------------------< org.apache.commons:commons-lang3 >------------------
+   [INFO] Building Apache Commons Lang 3.21.0-SNAPSHOT
+   [INFO]   from pom.xml
+   [INFO] --------------------------------[ jar ]---------------------------------
+   [INFO]
+   [INFO] --- clean:3.5.0:clean (default-clean) @ commons-lang3 ---
+   [INFO]
+   [INFO] --- enforcer:3.6.2:enforce (enforce-maven-version) @ commons-lang3 ---
+   [INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+   [INFO]
+   [INFO] --- enforcer:3.6.2:enforce (enforce-java-version) @ commons-lang3 ---
+   [INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+   [INFO]
+   [INFO] --- apache-rat:0.17:check (rat-check) @ commons-lang3 ---
+   [WARNING] Basedir is : Assignment-3-CodeComplex-Coverage
+   [INFO] Excluding patterns: site-content/**, src/site/resources/.htaccess,
+   src/site/resources/download_lang.cgi, src/site/resources/release-notes/RELEASE-NOTES-*.txt,
+   src/test/resources/lang-708-input.txt, **/*.svg, **/*.xcf, site-content/**,
+   .checkstyle, .fbprefs, .pmd, .asf.yaml, .gitattributes, src/site/resources/download_*.cgi,
+   maven-eclipse.xml, .externalToolBuilders/**, .vscode/**, .project, .classpath,
+   .settings/**, **/*.svg, **/*.xcf
+   [INFO] Excluding MAVEN collection.
+   [INFO] Excluding ECLIPSE collection.
+   [INFO] Excluding IDEA collection.
+   [INFO] Processing exclude file from STANDARD_SCMS.
+   [INFO] Excluding STANDARD_SCMS collection.
+   [INFO] Excluding MISC collection.
+   [INFO] RAT summary:
+   [INFO]   Approved:  573
+   [INFO]   Archives:  0
+   [INFO]   Binaries:  4
+   [INFO]   Document types:  4
+   [INFO]   Ignored:  36
+   [INFO]   License categories:  2
+   [INFO]   License names:  2
+   [INFO]   Notices:  3
+   [INFO]   Standards:  574
+   [INFO]   Unapproved:  1
+   [INFO]   Unknown:  1
+   [ERROR] Unexpected count for UNAPPROVED, limit is [0,0].  Count: 1
+   [INFO] UNAPPROVED (Unapproved) is a count of unapproved licenses.
+   [WARNING] *****************************************************
+   Generated at: 2026-02-13T15:51:12+01:00
 
-   b. **Are the results clear?**  
-   Yes.  
+   Files with unapproved licenses:
+     /report.md
+   [INFO] ------------------------------------------------------------------------
+   [INFO] BUILD FAILURE
+   [INFO] ------------------------------------------------------------------------
+   [INFO] Total time:  5.158 s
+   [INFO] Finished at: 2026-02-13T15:51:16+01:00
+   [INFO] ------------------------------------------------------------------------
+   [ERROR] Failed to execute goal org.apache.rat:apache-rat-plugin:0.17:check (rat-check)
+   on project commons-lang3: Counter(s) UNAPPROVED exceeded minimum or maximum values.
+   See RAT report in: 'Assignment-3-CodeComplex-Coverage/target/rat.txt'. -> [Help 1]
+   [ERROR]
+   [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+   [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+   [ERROR]
+   [ERROR] For more information about the errors and possible solutions, please read
+   the following articles:
+   [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+   ```
 
-2. **Is the function just complex, or also long?**  
-   Both, LOC can correlate with higher complexity. E.g. more conditional statements will increase complexity and LOC. However, redundant assignments and abstractions will increase LOC without increasing complexity but this is less common.  
+   This error is caused by `org.apache.rat:apache-rat-plugin`, which audits the
+   licenses of files in the repository. Since `report.md` is not licensed, the
+   build fails. To fix this, the following line was added to the `pom.xml` in the
+   RAT exclude list:
 
-3. **What is the purpose of the function?**  
-   The function swaps a contiguous segment of an array in place by an offset. Eg. given  
-   `boolean[] boolArray = {true, false, false, false};`
+   ```xml
+   <plugin>
+     <groupId>org.apache.rat</groupId>
+     <artifactId>apache-rat-plugin</artifactId>
+     <configuration>
+       <inputExcludes>
+         <inputExclude>**/report.md</inputExclude>
+         <inputExclude>site-content/**</inputExclude>
+         <inputExclude>src/site/resources/.htaccess</inputExclude>
+         <inputExclude>src/site/resources/download_lang.cgi</inputExclude>
+         <inputExclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</inputExclude>
+         <inputExclude>src/test/resources/lang-708-input.txt</inputExclude>
+         <inputExclude>**/*.svg</inputExclude>
+         <inputExclude>**/*.xcf</inputExclude>
+       </inputExcludes>
+     </configuration>
+   </plugin>
+   ```
 
-   | Input                          | Output                          |
-   |--------------------------------|----------------------------------|
-   | `shift(boolArray, 0, 2, 1);`   | `[false, true, false, false]`   |
-   | `shift(boolArray, 0, 3, 1);`   | `[false, true, false, false]`   |
-   | `shift(boolArray, 0, 3, 2);`   | `[false, false, true, false]`   |
-   | `shift(boolArray, 0, 4, -1);`  | `[false, false, false, true]`   |
+   This excludes `report.md` from the license check and allows the build to pass.
 
-4. **Are exceptions taken into account in the given measurements?**  
-   Yes.  
+## Complexity
 
-5. **Is the documentation clear with regards to all the possible outcomes?**  
-   No.  
+### Choosing function
+```bash
+      88     45    548      1     105 NumberUtils::isCreatable@583-687@./src/main/java/org/apache/commons/lang3/math/NumberUtils.java
+```
+CC: 45, so a good fit for this assignment
+
+### Reported complexity
+According to jacoco, the complexity is 47, which is close to the lizard tool.
+The report also shows missed 12 decision point paths, which confirms it is a good fit for this assignment.
+
+## Manual CC calculation
+id:1 Line 584: `if (StringUtils.isEmpty(str)) {` +1
+
+id:2 Line 594: `final int start = isSign(chars[0]) ? 1 : 0;` +1 (ternary)
+
+id:3 Line 595: `if (sz > start + 1 && chars[start] == '0' && !StringUtils.contains(str, '.')) {` +3 (if +1, && +2)
+
+id:4 Line 596: `if (chars[start + 1] == 'x' || chars[start + 1] == 'X') {` +2 (if +1, || +1)
+
+id:5 Line 598: `if (i == sz) {` +1
+
+id:6 Line 602: `for (; i < chars.length; i++) {` +1
+
+id:7 Line 603: `if (!CharUtils.isHex(chars[i])) {` +1
+
+id:8 Line 609: `if (Character.isDigit(chars[start + 1])) {` +1
+
+id:9 Line 612: `for (; i < chars.length; i++) {` +1
+
+id:10 Line 613: `if (!CharUtils.isOctal(chars[i])) {` +1
+
+id:11 Line 625: `while (i < sz || i < sz + 1 && allowSigns && !foundDigit) {` +4 (while +1, || +1, && +2)
+
+id:12 Line 626: `if (CharUtils.isAsciiNumeric(chars[i])) {` +1
+
+id:13 Line 629: `} else if (chars[i] == '.') {` +1
+
+id:14 Line 630: `if (hasDecPoint || hasExp) {` +2 (if +1, || +1)
+
+id:15 Line 635: `} else if (chars[i] == 'e' || chars[i] == 'E') {` +2 (if +1, || +1)
 
 
+id:16 Line 637: `if (hasExp) {` +1
 
+id:17 Line 641: `if (!foundDigit) {` +1
+
+id:18 Line 646: `} else if (isSign(chars[i])) {` +1
+
+id:19 Line 647: `if (!allowSigns) {` +1
+
+id:20 Line 657: `if (i < chars.length) {` +1
+
+id:21 Line 658: `if (CharUtils.isAsciiNumeric(chars[i])) {` +1
+
+id:22 Line 662: `if (chars[i] == 'e' || chars[i] == 'E') {` +2 (if +1, || +1)
+
+id:23 Line 666: `if (chars[i] == '.') {` +1
+
+id:24 Line 667: `if (hasDecPoint || hasExp) {` +2 (if +1, || +1)
+
+id:25 Line 674: `if (!allowSigns && (chars[i] == 'd' || chars[i] == 'D' || chars[i] == 'f' || chars[i] == 'F')) {` +5 (if +1, && +1, || +3)
+
+id:26 Line 677: `if (chars[i] == 'l' || chars[i] == 'L') {` +2 (if +1, || +1)
+
+Total decision points (π): 41  
+Exit points (s): 19 (all `return` statements)  
+Manual CC (M = π - s + 2): **24**
+
+### Function complex, or just long
+The function is complex, since it is an input parser that validates if a sequence is part of the language of java numbers. It has to handle lots of different edge cases. Reducing complexity in the method most likely just moves complexity elsewhere.
+
+### Purpose of the method
+The method parses a string to determine if it can be interpreted as a valid Java number. It checks for various formats, including hexadecimal, octal, decimal, and scientific notation. The method also handles optional signs, decimal points, and exponent indicators. It returns `true` if the string is a valid number according to Java's syntax rules, and `false` otherwise.
+
+### Are exceptions take into account
+Since the method did not contain exceptions, this is out of the scope for the complexity analysis. However, jacoco doesn't seem to handle try cathes, or throws in any specific way.
+
+### Does the documentation explain the behavior of the method
+The documentation explains the methods behavior on a high level, but it does not address all possible branch outcomes, like a second exponent, trailing dot rules or 0x with no digits.
+
+## Refactoring
+
+The complexity of the method `isCreatable` can be significantly reduced by moving the complexity elsewhere. A proposal of how this could be improved is:
+1. Move the hex and octal handling to a helper method. Reduces decision points by 11.
+2. Move the number scanning loop to a helper method. Reduces decision points by 14.
+3. Move the last char handling to a helper method. Reduces decision points by 14.
+It is important to note, that for this refactoring to be successful, the helper methods need to return flags that keep the behavior consistent with the original method, which might bring up the complexity slightly. However, this slight increase will be after the estimated reduction and is presumably negligible. Readability and debugging speed might be slower with the proposed refactoring, since the logic is more spread out and there are more flags to keep track of. However, the reduced complexity should make it easier to understand the overall flow of the method.
+
+## Coverage
+
+### Tools
+
+Used jacoco with maven. Easy to run with `mvn test jacoco:report` and worked ok. Docs are fine.
+
+### Your own coverage tool
+
+The DIY coverage tool is implemented by using the void method `printIsCreatableCoverage` and a global boolean array `ISCREATABLE_COVERAGE` in `NumberUtils.java`. The method `printIsCreatableCoverage` is called in `NumberUtilsTest.java` with an `@AfterAll` annotation, which means it will be executed after all tests. The boolean array `ISCREATABLE_COVERAGE` is updated in the `isCreatable` method to track which decision points have been covered during the tests.
+
+```bash
+mvn -Dtest=NumberUtilsTest test
+```
+
+Results
+```bash
+  id:1 Line 584 if (isEmpty): HIT
+  id:2 Line 594 ternary (isSign): HIT
+  id:3 Line 595 if (leading 0 && ...): HIT
+  id:4 Line 596 if (hex prefix): HIT
+  id:5 Line 598 if (i == sz): MISS
+  id:6 Line 602 for (hex loop): HIT
+  id:7 Line 603 if (!isHex): HIT
+  id:8 Line 609 if (digit after 0): HIT
+  id:9 Line 612 for (octal loop): HIT
+  id:10 Line 613 if (!isOctal): HIT
+  id:11 Line 625 while (...): HIT
+  id:12 Line 626 if (isAsciiNumeric): HIT
+  id:13 Line 629 else if ('.'): HIT
+  id:14 Line 630 if (hasDecPoint || hasExp): HIT
+  id:15 Line 635 else if (e/E): HIT
+  id:16 Line 637 if (hasExp): MISS
+  id:17 Line 641 if (!foundDigit): HIT
+  id:18 Line 646 else if (isSign): HIT
+  id:19 Line 647 if (!allowSigns): HIT
+  id:20 Line 657 if (i < len): HIT
+  id:21 Line 658 if (isAsciiNumeric last): HIT
+  id:22 Line 662 if (e/E last): HIT
+  id:23 Line 666 if ('.' last): HIT
+  id:24 Line 667 if (hasDecPoint || hasExp): MISS
+  id:25 Line 674 if (!allowSigns && type D/F): HIT
+  id:26 Line 677 if (l/L): HIT
+Total: 23/26 branches hit
+```
+
+The branches that were missed are:
+- id:5 Line 598 if (i == sz)
+
+This case is hit when there is a hex prefix with no digits.
+
+- id:16 Line 637 if (hasExp)
+
+This case is hit when there is a second exponent.
+
+- id:24 Line 667 if (hasDecPoint || hasExp)
+
+This case is hit when there is a trailing dot after decimal.
+
+### Evaluation
+
+1. It is only decision points we added ids for (26 ids).
+2. Not scalable, manual changes if code changes, only the branches we added.
+3. Mostly consistent with jacoco but not exact since jacoco counts branches different.
+
+## Coverage improvement
+
+To increase coverage improvement
+
+### Recap of initial coverage
+Without improvements and DIY coverage tool
+jacoco: Branch coverage: 84%, Missed: 12, CXTY: 47. Missed Lines: 4, total: 63 (baseline run)
+Report: `target/site/jacoco/org.apache.commons.lang3.math/NumberUtils.java.html`
+
+### Results of improved coverage
+After adding the following test cases:
+
+```java
+compareIsCreatableWithCreateNumber("0x", false); // id:5
+compareIsCreatableWithCreateNumber("1E2E3", false); // id:16
+compareIsCreatableWithCreateNumber("1.2.", false); // id:24
+```
+jacoco: Branch coverage: 88%, Missed: 9, CXTY: 47, Missed Lines: 1, total: 63 (after tests above)
+Report: `target/site/jacoco/org.apache.commons.lang3.math/NumberUtils.java.html`
 
 ### SEMAT
 
