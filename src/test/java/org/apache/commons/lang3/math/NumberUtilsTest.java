@@ -824,6 +824,10 @@ class NumberUtilsTest extends AbstractLangTest {
      */
     @Test
     void testIsCreatable() {
+        compareIsCreatableWithCreateNumber("0x", false); // id:5
+        compareIsCreatableWithCreateNumber("1E2E3", false); // id:16
+        compareIsCreatableWithCreateNumber("1.2.", false); // id:24
+
         compareIsCreatableWithCreateNumber("12345", true);
         compareIsCreatableWithCreateNumber("1234.5", true);
         compareIsCreatableWithCreateNumber(".12345", true);
